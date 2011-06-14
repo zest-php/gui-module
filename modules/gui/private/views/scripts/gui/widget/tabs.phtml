@@ -1,0 +1,14 @@
+<?php $id = $this->object->getId(); ?>
+<div id="<?php echo $id; ?>" class="gui-widget-tabs">
+	<ul>
+		<?php foreach($this->object as $index => $tab): ?>
+			<?php $href = $tab->getUrl() ? $tab->getUrl() : '#'.$id.'-'.$index; ?>
+			<li><a href="<?php echo $href; ?>"><span><?php echo $tab->getTitle(); ?></span></a></li>
+		<?php endforeach; ?>
+	</ul>
+	<?php foreach($this->object as $index => $tab): ?>
+		<?php if(!$tab->getUrl()): ?>
+			<div id="<?php echo $id.'-'.$index; ?>"><?php echo $tab->renderContent(); ?></div>
+		<?php endif; ?>
+	<?php endforeach; ?>
+</div>
