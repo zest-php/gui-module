@@ -26,29 +26,43 @@ class Gui_Widget_Dialog extends Gui_Widget{
 	/**
 	 * @var Gui_Object
 	 */
-	protected $_content = null;
+	protected $_contentObject = null;
 	
 	/**
 	 * @return Gui_Object
 	 */
-	public function getContent(){
-		if(is_null($this->_content)){
-			$this->_content = new Gui_Object_Html();
+	public function getContentObject(){
+		if(is_null($this->_contentObject)){
+			$this->_contentObject = new Gui_Object_Html();
 		}
-		return $this->_content;
+		return $this->_contentObject;
 	}
 	
 	/**
-	 * @param string $viewScript
-	 * @return Gui_Widget_Dialog
+	 * @param Gui_Object|string $contentObject
+	 * @return Gui_Object
 	 */
-	public function setContentViewScript($viewScript){
-		$content = $this->getContent();
-		if($content instanceof Gui_Object_Html){
-			$content->setContentViewScript($viewScript);
-			return $this;
+	public function setContentObject($contentObject){
+		if(is_string($contentObject)){
+			$contentObject = $this->_manager->get($contentObject);
 		}
-		throw new Zest_Exception('Pour utiliser la méthode setContentViewScript, le contenu doit être un objet graphique Gui_Object_Html.');
+		if(!$contentObject instanceof Gui_Object){
+			throw new Zest_Exception('L\'objet de contenu doit être une instance de Gui_Object.');
+		}
+		$this->_contentObject = $contentObject;
+	}
+	
+	/**
+	 * @param string $method
+	 * @param array $args
+	 * @return mixed
+	 */
+	public function __call($method, $args){
+		$object = $this->getContentObject();
+		if(method_exists($object, $method)){
+			return call_user_func_array(array($object, $method), $args);
+		}
+		throw new Zest_Exception(sprintf('La méthode "%s" n\'existe pas.', $method));
 	}
 	
 	/**

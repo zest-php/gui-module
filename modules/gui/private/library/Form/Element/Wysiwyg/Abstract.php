@@ -23,6 +23,11 @@ abstract class Gui_Form_Element_Wysiwyg_Abstract{
 	protected $_element = null;
 	
 	/**
+	 * @var array
+	 */
+	protected $_options = array();
+	
+	/**
 	 * @param Zend_Form_Element $element
 	 * @return void
 	 */

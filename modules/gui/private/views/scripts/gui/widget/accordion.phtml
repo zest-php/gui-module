@@ -1,6 +1,6 @@
 <div id="<?php echo $this->object->getId(); ?>" class="gui-widget-accordion">
 	<?php foreach($this->object as $section): ?>
-		<h3><a href="javascript:;"><?php echo $section->getTitle(); ?></a></h3>
-		<div><?php echo $section->renderContent(); ?></div>
+		<h3 id="<?php echo $section->getId(); ?>-title"><a href="javascript:;"><?php echo $section->getTitle(); ?></a></h3>
+		<div id="<?php echo $section->getId(); ?>-content"><?php echo $section->renderContent(); ?></div>
 	<?php endforeach; ?>
 </div>

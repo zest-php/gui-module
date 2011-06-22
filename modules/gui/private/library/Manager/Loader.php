@@ -48,10 +48,11 @@ class Gui_Manager_Loader{
 	
 	/**
 	 * @param string $class
+	 * @param boolean $throwExceptions
 	 * @return string
 	 */
-	public function getClass($class){
-		if($classTree = $this->getClassTree($class)){
+	public function getClass($class, $throwExceptions = false){
+		if($classTree = $this->getClassTree($class, $throwExceptions)){
 			return $classTree[0];
 		}
 		return $class;
@@ -59,9 +60,10 @@ class Gui_Manager_Loader{
 	
 	/**
 	 * @param string $class
+	 * @param boolean $throwExceptions
 	 * @return array
 	 */
-	public function getClassTree($class){
+	public function getClassTree($class, $throwExceptions = false){
 		// @todo : ver_export ou session
 //		if(!$this->_manager->isEnvironmentDev()){
 //			$session = $this->_manager->getSession();
@@ -79,6 +81,9 @@ class Gui_Manager_Loader{
 				return $classes;
 			}
 		}
+		if($throwExceptions){
+			throw new Zest_Exception(sprintf('Impossible de trouver la classe "%s" à partir du tableau moduleResourceType.', $class));
+		}
 		if(!isset($this->_finalClasses[$class])){
 			$this->_finalClasses[$class] = $this->_getClassTree($class);
 		}
@@ -87,6 +92,7 @@ class Gui_Manager_Loader{
 	
 	/**
 	 * @param string $class
+	 * @param array $args
 	 * @return Gui_Object
 	 */
 	public function getObject($class, array $args = array()){
@@ -95,8 +101,13 @@ class Gui_Manager_Loader{
 			$object = new $class();
 		}
 		else{
-			$reflection = new ReflectionClass($class);
-			$object = $reflection->newInstanceArgs($args);
+			if(method_exists($class, '__construct')){
+				$reflection = new ReflectionClass($class);
+				$object = $reflection->newInstanceArgs($args);
+			}
+			else{
+				$object = new $class();
+			}
 		}
 		return $object;
 	}
@@ -136,7 +147,10 @@ class Gui_Manager_Loader{
 				$class = $resourceTypeInfos['namespace'].'_'.basename($class, '.'.$file->getExtension());
 				
 				// récupération des parents
-				$classTree = $this->_getClassTree($class);
+				$classTree = $this->_getClassTree($class, false);
+				if(!$classTree){
+					continue;
+				}
 				
 				/*
 				 * si une des classes a déjà chargée et
@@ -197,9 +211,10 @@ class Gui_Manager_Loader{
 	
 	/**
 	 * @param string $class
+	 * @param boolean $throwExceptions
 	 * @return array
 	 */
-	protected function _getClassTree($class){
+	protected function _getClassTree($class, $throwExceptions = true){
 		$classTree = class_parents($class);
 		array_unshift($classTree, $class);
 		$classTree = array_values($classTree);
@@ -209,7 +224,10 @@ class Gui_Manager_Loader{
 		$namespace = substr($lastParent, 0, $pos);
 		
 		if($namespace != 'Gui'){
-			throw new Zest_Exception(sprintf('La classe "%s" doit hériter d\'une classe dont l\'espace est "Gui".', $class));
+			if($throwExceptions){
+				throw new Zest_Exception(sprintf('La classe "%s" doit hériter d\'une classe dont l\'espace est "Gui".', $class));
+			}
+			return null;
 		}
 		
 		return $classTree;

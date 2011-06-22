@@ -78,7 +78,7 @@ class Gui_Form_Element_Datepicker extends Gui_Form_Element_Widget{
 	 */
 	public function render(Zend_View_Interface $view = null){
 		$date = new Zend_Date($this->getValue());
-		$picker = new Zend_Form_Element_Text($this->getJqueryIdSelector(), array(
+		$picker = new Zend_Form_Element_Text($this->_getJqueryIdSelector(), array(
 			'decorators' => array('viewHelper'),
 			'value' => $date->get($this->_getZendDateFormat($this->getWidgetOption('dateFormat')))
 		));
@@ -93,7 +93,7 @@ class Gui_Form_Element_Datepicker extends Gui_Form_Element_Widget{
 	/**
 	 * @return string
 	 */
-	public function getJqueryIdSelector(){
+	protected function _getJqueryIdSelector(){
 		return $this->getName().'_picker';
 	}
 	

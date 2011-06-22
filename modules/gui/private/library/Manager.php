@@ -56,10 +56,11 @@ class Gui_Manager extends Zest_Module_Manager{
 	
 	/**
 	 * @param string $class
+	 * @param array $args
 	 * @return Gui_Object
 	 */
-	public function get($class){
-		return $this->getLoader()->getObject($class);
+	public function get($class, array $args = array()){
+		return $this->getLoader()->getObject($class, $args);
 	}
 	
 	/**

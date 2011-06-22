@@ -41,7 +41,7 @@ class Gui_Object_Html extends Gui_Object{
 			if(count($this->_lastsInNamespaces) == 1){
 				throw new Zest_Exception(sprintf('Aucun script de vue renseigné pour l\'objet "%s" [%s].', get_class($this), $this->getId()));
 			}
-			$this->_contentViewScript = $this->_getViewScript('-content.phtml');
+			$this->_contentViewScript = $this->_script('-content.phtml');
 		}
 		return $this->_contentViewScript;
 	}
@@ -60,6 +60,9 @@ class Gui_Object_Html extends Gui_Object{
 	 * @return string
 	 */
 	public function renderContent($view = null){
+		if(!is_null($view)){
+			$this->setView($view);
+		}
 		if(is_null($this->_content)){
 			$this->_content = $this->_render($this->getContentViewScript());
 		}

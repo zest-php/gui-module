@@ -19,6 +19,11 @@ abstract class Gui_Object{
 	/**
 	 * @var string
 	 */
+	protected $_viewScript = null;
+	
+	/**
+	 * @var string
+	 */
 	protected $_id = null;
 	
 	/**
@@ -127,14 +132,26 @@ abstract class Gui_Object{
 	 * @return string
 	 */
 	public function getViewScript(){
-		return $this->_getViewScript('.phtml');
+		if(is_null($this->_viewScript)){
+			$this->_viewScript = $this->_script('.phtml');
+		}
+		return $this->_viewScript;
+	}
+	
+	/**
+	 * @param string $viewScript
+	 * @return Gui_Object
+	 */
+	public function setViewScript($viewScript){
+		$this->_viewScript = $viewScript;
+		return $this;
 	}
 	
 	/**
 	 * @param string $suffix
 	 * @return string
 	 */
-	protected function _getViewScript($suffix){
+	protected function _script($suffix){
 		$this->_initLastInNamespace();
 		$scriptPaths = $this->getView()->getScriptPaths();
 		
@@ -177,7 +194,7 @@ abstract class Gui_Object{
 	 * @param Zend_View_Interface $view
 	 * @return string
 	 */
-	public function render($view = null){
+	public function render(Zend_View_Interface $view = null){
 		if(!is_null($view)){
 			$this->setView($view);
 		}

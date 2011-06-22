@@ -73,7 +73,6 @@ abstract class Gui_Form_Element_Widget extends Gui_Form_Element implements Gui_W
 			return $this->_widgetEvents[$name];
 		}
 		return null;
-		
 	}
 	
 	/**
@@ -111,13 +110,6 @@ abstract class Gui_Form_Element_Widget extends Gui_Form_Element implements Gui_W
 	}
 	
 	/**
-	 * @return string
-	 */
-	public function getJqueryIdSelector(){
-		return $this->getName();
-	}
-	
-	/**
 	 * @param Zend_View_Interface $view
 	 * @return string
 	 */
@@ -129,11 +121,18 @@ abstract class Gui_Form_Element_Widget extends Gui_Form_Element implements Gui_W
 		$this->getView()->jquery()->ui('ui.'.$widget);
 		$this->getView()->head()->jsInline(
 			'$(function(){'.
-			'$("#'.$this->getJqueryIdSelector().'").'.$widget.'('.$this->_getJsonOptions().');'.
+			'$("#'.$this->_getJqueryIdSelector().'").'.$widget.'('.$this->_getJsonOptions().');'.
 			'});'
 		);
 		
 		return $render;
+	}
+	
+	/**
+	 * @return string
+	 */
+	protected function _getJqueryIdSelector(){
+		return $this->getName();
 	}
 	
 	/**

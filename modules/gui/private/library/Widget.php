@@ -72,7 +72,6 @@ abstract class Gui_Widget extends Gui_Object implements Gui_Widget_Interface{
 			return $this->_widgetEvents[$name];
 		}
 		return null;
-		
 	}
 	
 	/**
@@ -110,29 +109,31 @@ abstract class Gui_Widget extends Gui_Object implements Gui_Widget_Interface{
 	}
 	
 	/**
-	 * @return string
-	 */
-	public function getJqueryIdSelector(){
-		return $this->getId();
-	}
-	
-	/**
 	 * @param Zend_View_Interface $view
 	 * @return string
 	 */
 	public function render(Zend_View_Interface $view = null){
-		$render = parent::render($view);
+		if(!is_null($view)){
+			$this->setView($view);
+		}
 		
 		$widget = $this->getWidgetName();
 		
 		$this->getView()->jquery()->ui('ui.'.$widget);
 		$this->getView()->head()->jsInline(
 			'$(function(){'.
-			'$("#'.$this->getJqueryIdSelector().'").'.$widget.'('.$this->_getJsonOptions().');'.
+			'$("#'.$this->_getJqueryIdSelector().'").'.$widget.'('.$this->_getJsonOptions().');'.
 			'});'
 		);
 		
-		return $render;
+		return parent::render();
+	}
+	
+	/**
+	 * @return string
+	 */
+	protected function _getJqueryIdSelector(){
+		return $this->getId();
 	}
 	
 	/**

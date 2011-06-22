@@ -50,11 +50,6 @@ interface Gui_Widget_Interface{
 	public function getWidgetName();
 	
 	/**
-	 * @return string
-	 */
-	public function getJqueryIdSelector();
-	
-	/**
 	 * @param Zend_View_Interface $view
 	 * @return string
 	 */
