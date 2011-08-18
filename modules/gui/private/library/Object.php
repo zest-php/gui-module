@@ -37,11 +37,22 @@ abstract class Gui_Object{
 	protected $_vars = array();
 	
 	/**
+	 * @var array
+	 */
+	protected $_xhrMethods = array();
+	
+	/**
+	 * @var array
+	 */
+	protected $_params = array();
+	
+	/**
 	 * @return void
 	 */
 	public function __construct(array $options = array()){
 		$this->_manager = Gui_Manager::getInstance();
 		$this->setOptions($options);
+		$this->init();
 	}
 	
 	/**
@@ -56,6 +67,50 @@ abstract class Gui_Object{
 				$this->$method($value);
 			}
 		}
+		return $this;
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function getOptions(){
+		return array('params' => $this->getParams());
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function getParams(){
+		return $this->_params;
+	}
+	
+	/**
+	 * @param string $key
+	 * @return mixed
+	 */
+	public function getParam($key){
+		if(isset($this->_params[$key])){
+			return $this->_params[$key];
+		}
+		return null;
+	}
+	
+	/**
+	 * @param string $key
+	 * @param mixed $value
+	 * @return mixed
+	 */
+	public function setParam($key, $value){
+		$this->_params[$key] = $value;
+		return null;
+	}
+	
+	/**
+	 * @param array $params
+	 * @return Gui_Object
+	 */
+	public function setParams(array $params){
+		$this->_params = $params;
 		return $this;
 	}
 	
@@ -154,6 +209,20 @@ abstract class Gui_Object{
 	protected function _script($suffix){
 		$this->_initLastInNamespace();
 		$scriptPaths = $this->getView()->getScriptPaths();
+	
+		foreach($scriptPaths as $key => $scriptPath){
+			$scriptPaths[$key] = str_replace(DIRECTORY_SEPARATOR, '/', $scriptPath);
+		}
+			
+		$modules = array_keys($this->_lastsInNamespaces);
+		foreach($modules as $module){
+			$moduleDirectory = Zest_Controller_Front::getInstance()->getModuleDirectory(strtolower($module));
+			$moduleDirectory = str_replace(DIRECTORY_SEPARATOR, '/', $moduleDirectory);
+			if(!in_array($moduleDirectory.'/views/scripts/', $scriptPaths)){
+				$this->getView()->addScriptPath($moduleDirectory.'/views/scripts/');
+				$scriptPaths = $this->getView()->getScriptPaths();
+			}
+		}
 		
 		$viewScript = null;
 		$defaultViewScript = null;
@@ -191,6 +260,24 @@ abstract class Gui_Object{
 	}
 	
 	/**
+	 * @return void
+	 */
+	public function init(){
+	}
+	
+	/**
+	 * @return void
+	 */
+	public function preRender(){
+	}
+	
+	/**
+	 * @return void
+	 */
+	public function postRender(){
+	}
+	
+	/**
 	 * @param Zend_View_Interface $view
 	 * @return string
 	 */
@@ -198,7 +285,10 @@ abstract class Gui_Object{
 		if(!is_null($view)){
 			$this->setView($view);
 		}
-		return $this->_render($this->getViewScript());
+		$this->preRender();
+		$render = $this->_render($this->getViewScript());
+		$this->postRender();
+		return $render;
 	}
 	
 	/**
@@ -208,6 +298,14 @@ abstract class Gui_Object{
 	 */
 	protected function _render($viewScript){
 		return $this->getView()->partial($viewScript, array_merge($this->getVars(), array('object' => $this)));
+	}
+	
+	/**
+	 * @param string $method
+	 * @return boolean
+	 */
+	public function isXhrMethod($method){
+		return in_array($method, $this->_xhrMethods);
 	}
 	
 }

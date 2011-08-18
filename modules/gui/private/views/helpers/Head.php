@@ -31,9 +31,13 @@ class Gui_View_Helper_Head extends Zest_View_Helper_Head{
 	 * @return Zest_View_Helper_Head|array
 	 */
 	public function css($href = null, $media = null, $prepend = false){
+		if(is_null($href)){
+			return parent::css();
+		}
 		if($href = $this->_sessioned('css', $href)){
 			parent::css($href, $media, $prepend);
 		}
+		return $this;
 	}
 	
 	/**
@@ -42,9 +46,13 @@ class Gui_View_Helper_Head extends Zest_View_Helper_Head{
 	 * @return Zest_View_Helper_Head|array
 	 */
 	public function js($src = null, $prepend = false){
+		if(is_null($src)){
+			return parent::js();
+		}
 		if($src = $this->_sessioned('js', $src)){
 			parent::js($src, $prepend);
 		}
+		return $this;
 	}
 	
 	/**
@@ -53,11 +61,10 @@ class Gui_View_Helper_Head extends Zest_View_Helper_Head{
 	 * @return void
 	 */
 	protected function _sessioned($type, $file){
-		
 		$add = true;
 		
 		$request = Zest_Controller_Front::getInstance()->getRequest();
-		$referers = (array) $this->_manager->getSession()->Gui_View_Helper_Jquery;
+		$referers = (array) $this->_manager->getSession()->Gui_View_Helper_Head;
 		
 		if($request->isXmlHttpRequest()){
 			$referer = $request->getHeader('referer');
@@ -72,7 +79,7 @@ class Gui_View_Helper_Head extends Zest_View_Helper_Head{
 			
 			if($add){
 				$referers[$referer][$type][] = $file;
-				$this->_manager->getSession()->Gui_View_Helper_Jquery = $referers;
+				$this->_manager->getSession()->Gui_View_Helper_Head = $referers;
 			}
 		}
 		else{
@@ -89,7 +96,7 @@ class Gui_View_Helper_Head extends Zest_View_Helper_Head{
 				$referers[$requestUri][$type][] = $file;
 			}
 			
-			$this->_manager->getSession()->Gui_View_Helper_Jquery = $referers;
+			$this->_manager->getSession()->Gui_View_Helper_Head = $referers;
 		}
 		
 		if($add){

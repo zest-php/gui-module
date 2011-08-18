@@ -1,0 +1,5 @@
+<div id="<?php echo $this->object->getId(); ?>" class="gui-windowing-frameset">
+	<?php foreach($this->object as $frame): ?>
+		<?php echo $frame->render(); ?>
+	<?php endforeach; ?>
+</div>

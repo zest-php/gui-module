@@ -12,10 +12,13 @@ class Gui_Form_Element extends Zend_Form_Element{
 	protected $_manager = null;
 	
 	/**
+     * @param string|array|Zend_Config $spec
+     * @param array|Zend_Config $options
 	 * @return void
 	 */
-	public function init(){
+	public function __construct($spec, $options = null){
 		$this->_manager = Gui_Manager::getInstance();
+		parent::__construct($spec, $options);
 	}
 	
 }

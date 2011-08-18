@@ -30,6 +30,16 @@ class Gui_View_Helper_Jquery extends Zend_View_Helper_Abstract{
 	);
 	
 	/**
+	 * @var boolean
+	 */
+	protected $_jqueryuiAll = false;
+	
+	/**
+	 * @var array
+	 */
+	protected $_js = array();
+	
+	/**
 	 * @return void
 	 */
 	public function __construct(){
@@ -47,7 +57,7 @@ class Gui_View_Helper_Jquery extends Zend_View_Helper_Abstract{
 	 * @return Gui_View_Helper_Jquery
 	 */
 	public function core(){
-		$this->_js($this->_getUrl('url.jquery.core'));
+		$this->_js($this->_manager->getConfigUrl('url.jquery.core'), true);
 		return $this;
 	}
 	
@@ -56,7 +66,7 @@ class Gui_View_Helper_Jquery extends Zend_View_Helper_Abstract{
 	 * @return Gui_View_Helper_Jquery
 	 */
 	public function plugin($plugin){
-		$this->_js($this->_getUrl('url.jquery.'.$plugin));
+		$this->_js($this->_manager->getConfigUrl('url.jquery.'.$plugin));
 		return $this;
 	}
 	
@@ -65,43 +75,67 @@ class Gui_View_Helper_Jquery extends Zend_View_Helper_Abstract{
 	 * @return Gui_View_Helper_Jquery
 	 */
 	public function ui($component = null){
+		if($this->_jqueryuiAll){
+			return $this;
+		}
 		if($component){
-			$this->_js($this->_getUrl('url.jquery.ui.core'));
+			$this->_js($this->_manager->getConfigUrl('url.jquery.ui.core'));
 			
 			if(substr($component, 0, 7) == 'effects'){
-				$this->_js($this->_getUrl('url.jquery.ui.component', 'effects.core'));
+				$this->_js($this->_manager->getConfigUrl('url.jquery.ui.component', 'effects.core'));
 			}
 			else{
 				if(in_array($component, $this->_dependencies['widget'])){
-					$this->_js($this->_getUrl('url.jquery.ui.component', 'ui.widget'));
+					$this->_js($this->_manager->getConfigUrl('url.jquery.ui.component', 'ui.widget'));
 				}
 				if(in_array($component, $this->_dependencies['mouse'])){
-					$this->_js($this->_getUrl('url.jquery.ui.component', 'ui.mouse'));
+					$this->_js($this->_manager->getConfigUrl('url.jquery.ui.component', 'ui.mouse'));
 				}
 				if(in_array($component, $this->_dependencies['position'])){
-					$this->_js($this->_getUrl('url.jquery.ui.component', 'ui.position'));
+					$this->_js($this->_manager->getConfigUrl('url.jquery.ui.component', 'ui.position'));
 				}
 			}
 			
-			$this->_js($this->_getUrl('url.jquery.ui.component', $component));
+			$this->_js($this->_manager->getConfigUrl('url.jquery.ui.component', $component));
 			if($component == 'ui.datepicker'){
-				$this->_js($this->_getUrl('url.jquery.ui.i18n', $this->_getLanguage()));
+				$this->_js($this->_manager->getConfigUrl('url.jquery.ui.i18n', $this->_getLanguage()));
 			}
 		}
 		else{
-			$this->_js($this->_getUrl('url.jquery.ui.all'));
-			$this->_js($this->_getUrl('url.jquery.ui.i18n', $this->_getLanguage()));
+			$headScript = $this->view->headScript();
+			$iterator = (array) $headScript->getIterator();
+			foreach($iterator as $offset => $script){
+				if(isset($script->attributes['src']) && in_array($script->attributes['src'], $this->_js)){
+					$headScript->offsetUnset($offset);
+				}
+			}
+			
+			$this->_jqueryuiAll = true;
+			$this->_js($this->_manager->getConfigUrl('url.jquery.ui.i18n', $this->_getLanguage()), true);
+			$this->_js($this->_manager->getConfigUrl('url.jquery.ui.all'), true);
+			$this->core();
 		}
-		$this->_css($this->_getUrl('url.jquery.ui.css'));
+		$this->_css($this->_manager->getConfigUrl('url.jquery.ui.css'));
+		return $this;
+	}
+	
+	/**
+	 * @return Gui_View_Helper_Jquery
+	 */
+	public function reset(){
+		$this->_js = array();
+		$this->_jqueryuiAll = false;
 		return $this;
 	}
 	
 	/**
 	 * @param string $js
+	 * @param boolean $prepend
 	 * @return void
 	 */
-	protected function _js($js){
-		$this->view->head()->js($js);
+	protected function _js($js, $prepend = false){
+		$this->_js[] = $js;
+		$this->view->head()->js($js, $prepend);
 	}
 	
 	/**
@@ -123,18 +157,6 @@ class Gui_View_Helper_Jquery extends Zend_View_Helper_Abstract{
 			$locale = key(Zend_Locale::getDefault());
 		}
 		return $locale;
-	}
-	
-	/**
-	 * @param string $config
-	 * @return void
-	 */
-	protected function _getUrl($config, $sprintf = null){
-		$url = dirname($this->_manager->getUrl()).'/'.$this->_manager->getConfig($config);
-		if($sprintf){
-			$url = sprintf($url, $sprintf);
-		}
-		return $url;
 	}
 	
 }

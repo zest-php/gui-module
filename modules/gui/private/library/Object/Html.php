@@ -39,7 +39,7 @@ class Gui_Object_Html extends Gui_Object{
 		if(is_null($this->_contentViewScript)){
 			$this->_initLastInNamespace();
 			if(count($this->_lastsInNamespaces) == 1){
-				throw new Zest_Exception(sprintf('Aucun script de vue renseigné pour l\'objet "%s" [%s].', get_class($this), $this->getId()));
+				throw new Zest_Exception(sprintf('Aucun script de vue renseigné pour l\'objet "%s".', get_class($this)));
 			}
 			$this->_contentViewScript = $this->_script('-content.phtml');
 		}

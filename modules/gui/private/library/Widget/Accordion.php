@@ -29,9 +29,9 @@ class Gui_Widget_Accordion extends Gui_Widget implements IteratorAggregate{
 	/**
 	 * @param Gui_Widget_Accordion_Section|array|string $section
 	 * @param array $options
-	 * @return Gui_Widget_Accordion_Section
+	 * @return Gui_Widget_Accordion
 	 */
-	public function addSection($section = null, $options = array()){
+	public function addSection($section = null, array $options = array()){
 		if(!$section instanceof Gui_Widget_Accordion_Section){
 			if(is_null($section)){
 				$section = array();
@@ -40,14 +40,15 @@ class Gui_Widget_Accordion extends Gui_Widget implements IteratorAggregate{
 				$section = new Gui_Widget_Accordion_Section($section);
 			}
 			else if(is_string($section)){
-				$section = $this->_manager->get($section, array($options));
+				$section = $this->_manager->get($section);
 			}
 			if(!$section instanceof Gui_Widget_Accordion_Section){
 				throw new Zest_Exception('La section doit être une instance de Gui_Widget_Accordion_Section.');
 			}
 		}
+		$section->setOptions($options);
 		$this->_sections[] = $section;
-		return $section;
+		return $this;
 	}
 	
 	/**

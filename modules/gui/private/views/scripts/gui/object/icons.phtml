@@ -1,0 +1,5 @@
+<div id="<?php echo $this->object->getId(); ?>" class="gui-object-icons" data-class="<?php echo get_class($this->object); ?>">
+	<?php foreach($this->object as $icon): ?>
+		<a href="javascript:;" class="gui-object-icons-icon" title="<?php echo $icon->getLabel(); ?>" style="background-image: url(<?php echo $icon->getImage(); ?>);" data-id="<?php echo $icon->getId(); ?>"><?php echo $icon->getLabel(); ?></a>
+	<?php endforeach; ?>
+</div>

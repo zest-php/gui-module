@@ -29,9 +29,9 @@ class Gui_Widget_Tabs extends Gui_Widget implements IteratorAggregate{
 	/**
 	 * @param Gui_Widget_Tabs_Tab|array|string $tab
 	 * @param array $options
-	 * @return Gui_Widget_Tabs_Tab
+	 * @return Gui_Widget_Tabs
 	 */
-	public function addTab($tab = null, $options = array()){
+	public function addTab($tab = null, array $options = array()){
 		if(!$tab instanceof Gui_Widget_Tabs_Tab){
 			if(is_null($tab)){
 				$tab = array();
@@ -40,14 +40,15 @@ class Gui_Widget_Tabs extends Gui_Widget implements IteratorAggregate{
 				$tab = new Gui_Widget_Tabs_Tab($tab);
 			}
 			else if(is_string($tab)){
-				$tab = $this->_manager->get($tab, array($options));
+				$tab = $this->_manager->get($tab);
 			}
 			if(!$tab instanceof Gui_Widget_Tabs_Tab){
 				throw new Zest_Exception('L\'onglet doit être une instance de Gui_Widget_Tabs_Tab.');
 			}
 		}
+		$tab->setOptions($options);
 		$this->_tabs[] = $tab;
-		return $tab;
+		return $this;
 	}
 	
 	/**

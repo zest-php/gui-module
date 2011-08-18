@@ -1,0 +1,20 @@
+.gui-object-icons .gui-object-icons-icon{
+	display: inline-block;
+	margin: 5px;
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-size: 70px;
+	width: 74px;
+	height: 18px;
+	padding: 56px 0px 0px 0px;
+}
+
+.gui-object-icons .ui-button-text{
+	padding: 1px 4px;
+	background-color: rgba(0, 0, 0, 0.5);
+	color: #ffffff;
+	white-space: nowrap;
+	line-height: normal;
+	font-weight: normal;
+	font-size: 11px;
+}

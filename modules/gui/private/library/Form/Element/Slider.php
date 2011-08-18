@@ -40,18 +40,6 @@ class Gui_Form_Element_Slider extends Gui_Form_Element_Widget{
 	public $helper = 'formHidden';
 	
 	/**
-	 * @return void
-	 */
-	public function init(){
-		if($this->getWidgetOption('range')){
-			$this->setWidgetEvent('slide', '$("#'.$this->getName().'").val(ui.values.join("'.$this->_rangeValuesSeparator.'"))');
-		}
-		else{
-			$this->setWidgetEvent('slide', '$("#'.$this->getName().'").val(ui.value)');
-		}
-	}
-	
-	/**
 	 * @return string
 	 */
 	public function getValue(){
@@ -91,9 +79,11 @@ class Gui_Form_Element_Slider extends Gui_Form_Element_Widget{
 	public function render(Zend_View_Interface $view = null){
 		if($this->getWidgetOption('range')){
 			$this->setWidgetOption('values', explode($this->_rangeValuesSeparator, $this->getValue()));
+			$this->setWidgetEvent('slide', '$("#'.$this->getName().'").val(ui.values.join("'.$this->_rangeValuesSeparator.'"))');
 		}
 		else{
 			$this->setWidgetOption('value', $this->getValue());
+			$this->setWidgetEvent('slide', '$("#'.$this->getName().'").val(ui.value)');
 		}
 		$div = '<div id="'.$this->getJqueryIdSelector().'"></div>';
 		return str_replace('<input', $div.'<input', parent::render($view));

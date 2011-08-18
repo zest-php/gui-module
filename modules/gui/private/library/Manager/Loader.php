@@ -48,11 +48,10 @@ class Gui_Manager_Loader{
 	
 	/**
 	 * @param string $class
-	 * @param boolean $throwExceptions
 	 * @return string
 	 */
-	public function getClass($class, $throwExceptions = false){
-		if($classTree = $this->getClassTree($class, $throwExceptions)){
+	public function getClass($class){
+		if($classTree = $this->getClassTree($class)){
 			return $classTree[0];
 		}
 		return $class;
@@ -60,56 +59,79 @@ class Gui_Manager_Loader{
 	
 	/**
 	 * @param string $class
-	 * @param boolean $throwExceptions
 	 * @return array
 	 */
-	public function getClassTree($class, $throwExceptions = false){
-		// @todo : ver_export ou session
-//		if(!$this->_manager->isEnvironmentDev()){
-//			$session = $this->_manager->getSession();
-//			if($session->Gui_Manager_Loader){
-//				list($this->_overrideClasses, $this->_finalClasses) = $session->Gui_Manager_Loader;
-//			}
-//		}
-		$this->_initOverrideClasses();
-//		if(isset($session)){
-//			$session->Gui_Manager_Loader = array($this->_overrideClasses, $this->_finalClasses);
-//		}
+	public function getClassTree($class){
+		if(gettype($class) != 'string'){
+			throw new Zest_Exception('$class doit être une chaîne de caractères.');
+		}
+		$dev = $this->_manager->isEnvironmentDev();
 		
+		// load
+		if(!$dev){
+			$this->_overrideClasses = (array) $this->_manager->getSaver()->load('Gui_Manager_Loader', 'overrideClasses');
+			$this->_finalClasses = (array) $this->_manager->getSaver()->load('Gui_Manager_Loader', 'finalClasses');
+		}
+		
+		// overrideClasses
+		$overrideClasses = $this->_overrideClasses;
+		$this->_initOverrideClasses();
+		if(!$dev && $overrideClasses != $this->_overrideClasses){
+			$this->_manager->getSaver()->save('Gui_Manager_Loader', 'overrideClasses', $this->_overrideClasses);
+		}
 		foreach($this->_overrideClasses as $classes){
 			if(in_array($class, $classes)){
 				return $classes;
 			}
 		}
-		if($throwExceptions){
-			throw new Zest_Exception(sprintf('Impossible de trouver la classe "%s" à partir du tableau moduleResourceType.', $class));
-		}
+		
+		// finalClasses
 		if(!isset($this->_finalClasses[$class])){
 			$this->_finalClasses[$class] = $this->_getClassTree($class);
+			if(!$dev){
+				$this->_manager->getSaver()->save('Gui_Manager_Loader', 'finalClasses', $this->_finalClasses);
+			}
 		}
 		return $this->_finalClasses[$class];
 	}
 	
 	/**
 	 * @param string $class
-	 * @param array $args
+	 * @param array $options
 	 * @return Gui_Object
 	 */
-	public function getObject($class, array $args = array()){
-		$class = $this->getClass($class);
-		if(empty($args)){
-			$object = new $class();
+	public function getObject($class, array $options = array()){
+		$namespace = substr($class, 0, strpos($class, '_'));
+		if($namespace == 'Gui' && strpos($class, 'Gui_Windowing_Window_Main') === false){
+			throw new Zest_Exception('Impossible d\'utiliser le loader pour créer un objet avec le namespace "Gui".');
 		}
-		else{
-			if(method_exists($class, '__construct')){
-				$reflection = new ReflectionClass($class);
-				$object = $reflection->newInstanceArgs($args);
+		
+		$class = $this->getClass($class);
+		$object = new $class($options);
+		
+		if($object instanceof Gui_Object){
+			if($options = $this->_manager->getSaver()->load('Gui_Manager_Loader', $class)){
+				$object->setOptions($options);
+				$new_options = $object->getOptions();
+				if($new_options != $options){
+					$this->saveObject($object);
+				}
 			}
 			else{
-				$object = new $class();
+				$this->saveObject($object);
 			}
 		}
+		
 		return $object;
+	}
+	
+	/**
+	 * @param Gui_Object $object
+	 * @return Gui_Manager_Loader
+	 */
+	public function saveObject(Gui_Object $object){
+		$this->_manager->getSaver()->save('Gui_Manager_Loader', get_class($object), $object->getOptions());
+		return $this;
 	}
 	
 	/**
@@ -214,7 +236,11 @@ class Gui_Manager_Loader{
 	 * @param boolean $throwExceptions
 	 * @return array
 	 */
-	protected function _getClassTree($class, $throwExceptions = true){
+	protected function _getClassTree($class, $throwExceptions = true){		
+		if(!class_exists($class)){
+			throw new Zest_Exception(sprintf('La classe "%s" n\'existe pas.', $class));
+		}
+		
 		$classTree = class_parents($class);
 		array_unshift($classTree, $class);
 		$classTree = array_values($classTree);

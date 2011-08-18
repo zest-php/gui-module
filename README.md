@@ -1,10 +1,10 @@
-Zest Framework
-==============
+Gui Module
+==========
 
 Installation
 ------------
 
-git clone git://github.com/zest-php/zest-framework.git
+git clone git://github.com/zest-php/gui-module.git
 
 System requirements
 -------------------
@@ -14,7 +14,7 @@ PHP 5.2.4
 Development versions
 --------------------
 
-https://github.com/zest-php/zest-framework
+https://github.com/zest-php/gui-module
 
 Production versions
 --------------------

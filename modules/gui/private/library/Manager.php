@@ -12,6 +12,11 @@ class Gui_Manager extends Zest_Module_Manager{
 	protected static $_instance = null;
 	
 	/**
+	 * @var Gui_Manager_Saver_Abstract
+	 */
+	protected $_saver = null;
+	
+	/**
 	 * @var Gui_Manager_Loader
 	 */
 	protected $_loader = null;
@@ -55,12 +60,13 @@ class Gui_Manager extends Zest_Module_Manager{
 	}
 	
 	/**
-	 * @param string $class
-	 * @param array $args
-	 * @return Gui_Object
+	 * @return Gui_Manager_Saver_Abstract
 	 */
-	public function get($class, array $args = array()){
-		return $this->getLoader()->getObject($class, $args);
+	public function getSaver(){
+		if(is_null($this->_saver)){
+			$this->_saver = new Gui_Manager_Saver_Session();
+		}
+		return $this->_saver;
 	}
 	
 	/**
@@ -71,6 +77,50 @@ class Gui_Manager extends Zest_Module_Manager{
 			$this->_loader = new Gui_Manager_Loader($this);
 		}
 		return $this->_loader;
+	}
+	
+	/**
+	 * @param string $class
+	 * @param array $options
+	 * @return Gui_Object
+	 */
+	public function get($class, array $options = array()){
+		return $this->getLoader()->getObject($class, $options);
+	}
+	
+	/**
+	 * @param string $module
+	 * @return string
+	 */
+	public function getViewGuiDir($module){
+		$controller = Zest_Controller_Front::getInstance();
+		return $controller->getModuleDirectory($module).'/views/gui';
+	}
+	
+	/**
+	 * @param string $config
+	 * @param string $sprintf
+	 * @return string
+	 */
+	public function getConfigUrl($config, $sprintf = null){
+		$url = dirname($this->getUrl()).'/'.$this->getConfig($config);
+		if($sprintf){
+			$url = sprintf($url, $sprintf);
+		}
+		return $url;
+	}
+	
+	/**
+	 * @param string $config
+	 * @param string $sprintf
+	 * @return string
+	 */
+	public function getConfigDirectory($config, $sprintf = null){
+		$url = dirname($this->getDirectory()).'/'.$this->getConfig($config);
+		if($sprintf){
+			$url = sprintf($url, $sprintf);
+		}
+		return $url;
 	}
 	
 }

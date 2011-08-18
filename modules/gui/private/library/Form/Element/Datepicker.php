@@ -45,20 +45,24 @@ class Gui_Form_Element_Datepicker extends Gui_Form_Element_Widget{
 	protected $_forceYearFourDigitsDisplay = true;
 	
 	/**
+     * @param string|array|Zend_Config $spec
+     * @param array|Zend_Config $options
 	 * @return void
 	 */
-	public function init(){
-		if(Zend_Registry::isRegistered('Zend_Locale')){
-			$locale = Zend_Registry::get('Zend_Locale');
-		}
-		else{
-			$locale = new Zend_Locale();
-		}
-		$data = Zend_Locale_Data::getList($locale->toString(), 'date');
-		if($this->_forceYearFourDigitsDisplay && !is_int(strpos($data['short'], 'yyyy'))){
-			$data['short'] = str_replace('yy', 'yyyy', $data['short']);
-		}
+	public function __construct($spec, $options = null){
+		parent::__construct($spec, $options);
+		
 		if(is_null($this->getWidgetOption('dateFormat'))){
+			if(Zend_Registry::isRegistered('Zend_Locale')){
+				$locale = Zend_Registry::get('Zend_Locale');
+			}
+			else{
+				$locale = new Zend_Locale();
+			}
+			$data = Zend_Locale_Data::getList($locale->toString(), 'date');
+			if($this->_forceYearFourDigitsDisplay && !is_int(strpos($data['short'], 'yyyy'))){
+				$data['short'] = str_replace('yy', 'yyyy', $data['short']);
+			}
 			$this->setWidgetOption('dateFormat', $this->_getJavaScriptFormat($data['short']));
 		}
 	}
