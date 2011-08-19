@@ -1,0 +1,4 @@
+<?php
+
+class Loader_Model_TestGetClassOverrideMultipleInverse1 extends Loader_Model_TestGetClassOverrideMultipleInverse2{
+}
